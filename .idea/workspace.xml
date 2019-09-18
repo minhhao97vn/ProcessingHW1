@@ -32,12 +32,12 @@
     <property name="settings.editor.selected.configurable" value="settings.github" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/img" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/img" />
       <recent name="$PROJECT_DIR$/src" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/img" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -53,8 +53,8 @@
     </option>
   </component>
   <component name="RunManager">
-    <configuration name="ProcessingTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.idvl.processing.ProcessingTest" />
+    <configuration name="Elevator" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.idvl.processing.Elevator" />
       <module name="ProcessingHW1" />
       <extension name="coverage">
         <pattern>
@@ -68,7 +68,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.ProcessingTest" />
+        <item itemvalue="Application.Elevator" />
       </list>
     </recent_temporary>
   </component>
@@ -85,7 +85,8 @@
       <workItem from="1568477357878" duration="6155000" />
       <workItem from="1568660606116" duration="21092000" />
       <workItem from="1568746771064" duration="18829000" />
-      <workItem from="1568768433577" duration="167000" />
+      <workItem from="1568768433577" duration="314000" />
+      <workItem from="1568768902176" duration="26673000" />
     </task>
     <servers />
   </component>
