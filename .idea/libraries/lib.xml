@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar:///Applications/Processing.app/Contents/Java/core.jar!/" />
+      <root url="jar://$USER_HOME$/Documents/Processing/libraries/G4P/library/G4P.jar!/" />
+      <root url="jar://$USER_HOME$/Documents/Processing/libraries/controlP5/library/controlP5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
