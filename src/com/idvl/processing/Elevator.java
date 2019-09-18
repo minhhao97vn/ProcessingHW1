@@ -1,14 +1,17 @@
 package com.idvl.processing;
 
 import controlP5.*;
+import controlP5.Button;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 public class Elevator extends PApplet {
     private ControlP5 cp5;
@@ -24,8 +27,10 @@ public class Elevator extends PApplet {
     static boolean[] selectedFloor = {false, false, false, false, false};
     private int moveCounter = 0;
     private MovingController movingController = new MovingController();
+    private Icon leftArrow, rightArrow;
+    private PImage[] leftArrows, rightArrows;
 
-    static int currentFloor = 0, nextFloor = 4;
+    static int currentFloor = 0, nextFloor = 0;
 
     // 0 : stand by
     // 1 : Up
@@ -126,6 +131,30 @@ public class Elevator extends PApplet {
                 .setSize(100, 100)
                 .setColorValue(color(186, 122, 20))
                 .setFont(createFont("AppleMyungjo", 120));
+
+        leftArrows = new PImage[]{loadImage("../img/go-up.png"), loadImage("../img/go-down.png"), loadImage("../img/go-left.png"), loadImage("../img/go-right.png")};
+        rightArrows = new PImage[]{loadImage("../img/go-up.png"), loadImage("../img/go-down.png"), loadImage("../img/go-left.png"), loadImage("../img/go-right.png")};
+
+        leftArrows[0].resize(parseInt(leftArrows[0].width * keypadBtnScaler), parseInt(leftArrows[0].width * keypadBtnScaler));
+        leftArrows[1].resize(parseInt(leftArrows[1].width * keypadBtnScaler), parseInt(leftArrows[1].width * keypadBtnScaler));
+        leftArrows[2].resize(parseInt(leftArrows[2].width * keypadBtnScaler), parseInt(leftArrows[2].width * keypadBtnScaler));
+        leftArrows[3].resize(parseInt(leftArrows[3].width * keypadBtnScaler), parseInt(leftArrows[3].width * keypadBtnScaler));
+
+        rightArrows[0].resize(parseInt(rightArrows[0].width * keypadBtnScaler), parseInt(rightArrows[0].width * keypadBtnScaler));
+        rightArrows[1].resize(parseInt(rightArrows[1].width * keypadBtnScaler), parseInt(rightArrows[1].width * keypadBtnScaler));
+        rightArrows[2].resize(parseInt(rightArrows[2].width * keypadBtnScaler), parseInt(rightArrows[2].width * keypadBtnScaler));
+        rightArrows[3].resize(parseInt(rightArrows[3].width * keypadBtnScaler), parseInt(rightArrows[3].width * keypadBtnScaler));
+
+
+        leftArrow = cp5.addIcon("leftArrow", 1)
+                .setPosition(80, 150)
+                .setImage(leftArrows[0])
+                .updateSize();
+
+        rightArrow = cp5.addIcon("rightArrow", 1)
+                .setPosition(340, 150)
+                .setImage(rightArrows[0])
+                .updateSize();
     }
 
     public void createKeyPad() {
@@ -206,8 +235,26 @@ public class Elevator extends PApplet {
         drawFloorCaption();
         time.setText(LocalTime.now().format(timeFormatter));
         date.setText(LocalDate.now().format(dateFormatter));
-        nextStop.setText("Next stop "+(nextFloor+1));
+        nextStop.setText("Next stop - " + (nextFloor + 1));
         currentFloorLabel.setText(String.valueOf(currentFloor + 1));
+        updateArrows();
+    }
+
+    public void updateArrows() {
+        switch (movingState) {
+            case 0:
+                leftArrow.setImage(leftArrows[2]);
+                rightArrow.setImage(rightArrows[3]);
+                break;
+            case 1:
+                leftArrow.setImage(leftArrows[0]);
+                rightArrow.setImage(rightArrows[0]);
+                break;
+            case -1:
+                leftArrow.setImage(leftArrows[1]);
+                rightArrow.setImage(rightArrows[1]);
+                break;
+        }
     }
 
     public void updateNextFloor() {
@@ -358,7 +405,9 @@ public class Elevator extends PApplet {
                     break;
             }
             updateNextFloor();
-            new MovingController().start();
+            movingController.stop();
+            movingController = new MovingController();
+            movingController.start();
         }
     }
 
