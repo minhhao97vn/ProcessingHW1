@@ -5,6 +5,7 @@ import controlP5.Button;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
+import processing.core.PSurfaceNone;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -13,29 +14,34 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 public class Elevator extends PApplet {
     private ControlP5 cp5;
-    private Button openBtn, closeBtn, oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn;
+    private Button openBtn, closeBtn, oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn, alarmBtn;
     private static final int btnWidth = 50;
     private static final int btnHeight = 50;
     private float keypadBtnScaler = 1 / 7f;
     private float functionalBtnScaler = 1 / 4f;
+    private float elevatorScale = 1 / 10f;
     private int backgroundColor = color(235, 245, 242);
     private Textlabel selecting, nextStop, time, date, currentWeight, currentFloorLabel;
     private int numberOfFloors = 5;
     private DateTimeFormatter timeFormatter, dateFormatter;
     static boolean[] selectedFloor = {false, false, false, false, false};
-    private int moveCounter = 0;
     private MovingController movingController = new MovingController();
-    private Icon leftArrow, rightArrow;
-    private PImage[] leftArrows, rightArrows;
+    private Icon leftArrow, rightArrow, elevator;
+    private PImage[] leftArrows, rightArrows, alarm;
+    private PImage elevatorImage;
+    private int elevatorX = 155, elevatorY = 675;
+    private float delta = 2.6f;
 
     static int currentFloor = 0, nextFloor = 0;
 
     // 0 : stand by
     // 1 : Up
     // -1 : Down
-    // 2 : Opening door
+    // 2 : Closing door
     // 3 : Closing door
     static int movingState = 0;
 
@@ -51,11 +57,21 @@ public class Elevator extends PApplet {
     PImage[] openBtnImg;
     PImage[] closeBtnImg;
 
+    int oldTime;
+    boolean timeKey = true;
+
     public class MovingController extends Thread {
         @Override
         public void run() {
             while (true) {
                 if (Elevator.currentFloor < Elevator.nextFloor) {
+                    if (Elevator.movingState == 0) {
+                        try {
+                            closeDoor();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     try {
                         Elevator.movingState = 1;
                         sleep(1500);
@@ -70,6 +86,13 @@ public class Elevator extends PApplet {
                     updateButtonColor(currentFloor);
                     break;
                 } else {
+                    if (Elevator.movingState == 0) {
+                        try {
+                            closeDoor();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     try {
                         Elevator.movingState = -1;
                         sleep(1500);
@@ -80,7 +103,12 @@ public class Elevator extends PApplet {
                     }
                 }
             }
+        }
 
+        public void closeDoor() throws InterruptedException {
+            println("Closing door");
+            Elevator.movingState = 2;
+            sleep(1000);
         }
     }
 
@@ -89,6 +117,7 @@ public class Elevator extends PApplet {
     }
 
     public void setup() {
+        frameRate(24);
         noStroke();
         cp5 = new ControlP5(this);
         cp5.setAutoDraw(false);
@@ -154,6 +183,24 @@ public class Elevator extends PApplet {
         rightArrow = cp5.addIcon("rightArrow", 1)
                 .setPosition(340, 150)
                 .setImage(rightArrows[0])
+                .updateSize();
+
+        alarm = new PImage[]{loadImage("../img/alarm.png"), loadImage("../img/alarm-selected.png")};
+        alarm[0].resize(parseInt(alarm[0].width * keypadBtnScaler), parseInt(alarm[0].width * keypadBtnScaler));
+        alarm[1].resize(parseInt(alarm[1].width * keypadBtnScaler), parseInt(alarm[1].width * keypadBtnScaler));
+
+        alarmBtn = cp5.addButton("alarmButtonController")
+                .setImage(alarm[0])
+                .updateSize()
+                .setPosition(215, 800);
+
+        elevatorImage = loadImage("../img/elevator.png");
+        elevatorImage.resize(parseInt(elevatorImage.width * elevatorScale), parseInt(elevatorImage.height * elevatorScale));
+
+
+        elevator = cp5.addIcon("elevator", 1)
+                .setPosition(elevatorX, elevatorY)
+                .setImage(elevatorImage)
                 .updateSize();
     }
 
@@ -230,14 +277,16 @@ public class Elevator extends PApplet {
         background(0, 0, 0);
         stroke(148, 137, 115);
         strokeWeight(5);
-        line(180, 300, 180, 720);
+        line(180, 310, 180, 720);
         cp5.draw();
         drawFloorCaption();
         time.setText(LocalTime.now().format(timeFormatter));
         date.setText(LocalDate.now().format(dateFormatter));
         nextStop.setText("Next stop - " + (nextFloor + 1));
         currentFloorLabel.setText(String.valueOf(currentFloor + 1));
+        updateNextFloor();
         updateArrows();
+        updateElevator();
     }
 
     public void updateArrows() {
@@ -254,10 +303,25 @@ public class Elevator extends PApplet {
                 leftArrow.setImage(leftArrows[1]);
                 rightArrow.setImage(rightArrows[1]);
                 break;
+            case 2:
+                leftArrow.setImage(leftArrows[3]);
+                rightArrow.setImage(rightArrows[2]);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void updateElevator() {
+        if (movingState == 1) {
+            elevator.setPosition(elevatorX, elevator.getPosition()[1] - delta);
+        } else if (movingState == -1) {
+            elevator.setPosition(elevatorX, elevator.getPosition()[1] + delta);
         }
     }
 
     public void updateNextFloor() {
+        int oldNextFloor = nextFloor;
         if (movingState == 0) {
             int deltaF = 10;
             int tempF = currentFloor;
@@ -268,24 +332,26 @@ public class Elevator extends PApplet {
                 }
             }
             nextFloor = tempF;
-            return;
-        }
 
-        if (movingState == 1) {
+        } else if (movingState == 1) {
             for (int i = currentFloor; i < numberOfFloors; i++) {
                 if (selectedFloor[i] && (i < nextFloor)) {
                     nextFloor = i;
-                    return;
+                    break;
                 }
             }
-        }
-        if (movingState == -1) {
+        } else if (movingState == -1) {
             for (int i = currentFloor; i > 0; i--) {
                 if (selectedFloor[i] && (i > nextFloor)) {
                     nextFloor = i;
-                    return;
+                    break;
                 }
             }
+        }
+        if (oldNextFloor != nextFloor) {
+            movingController.stop();
+            movingController = new MovingController();
+            movingController.start();
         }
     }
 
@@ -395,19 +461,23 @@ public class Elevator extends PApplet {
                     break;
                 case "/openButtonController":
                     println("Button open pressed");
-
+                    movingState = 0;
                     break;
                 case "/closeButtonController":
                     println("Button close pressed");
-
+                    movingState = 2;
                     break;
+                case "/alarmButtonController":
+                    println("Alarm button pressed");
+                    movingController.stop();
+                    alarmBtn.setImage(alarm[1]);
+                    movingState = 0;
                 default:
                     break;
             }
-            updateNextFloor();
-            movingController.stop();
-            movingController = new MovingController();
-            movingController.start();
+//            movingController.stop();
+//            movingController = new MovingController();
+//            movingController.start();
         }
     }
 
