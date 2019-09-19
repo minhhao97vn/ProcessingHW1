@@ -461,11 +461,15 @@ public class Elevator extends PApplet {
                     break;
                 case "/openButtonController":
                     println("Button open pressed");
-                    movingState = 0;
+                    if (movingState != 1 && movingState != -1) {
+                        movingState = 0;
+                    }
                     break;
                 case "/closeButtonController":
                     println("Button close pressed");
-                    movingState = 2;
+                    if (movingState != 1 && movingState != -1) {
+                        movingState = 2;
+                    }
                     break;
                 case "/alarmButtonController":
                     println("Alarm button pressed");
