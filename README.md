@@ -23,3 +23,7 @@ Explanation:
 Suggestions:
 - Use the touch screen to help users make choices easier.
 - Show more information on the electronic screen such as date, time, next floor, moving direction of the elevator.
+
+#A
+
+Demo by Processing application.
