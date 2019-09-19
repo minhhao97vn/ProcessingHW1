@@ -16,3 +16,10 @@ Explanation:
 # B
 
 ![design](https://i.imgur.com/J9GENem.jpg)
+
+- When using elevator, we usually want to choose destinations as quickly as possible: Floor button -> Closing button. A well designed interface will help people interact much easier.
+- Most elevators use buttons and symbols on them to help users figure out how to use them. LED display and sound are used to help users realize their choice.
+
+Suggestions:
+- Use the touch screen to help users make choices easier.
+- Show more information on the electronic screen such as date, time, next floor, moving direction of the elevator.
